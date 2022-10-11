@@ -309,3 +309,91 @@ experiment2 <- merge(elongation_long, treatments, by.x = c("zone", "indiv"), by.
 
 
 boxplot(length ~ Treatment, data = experiment)
+
+
+
+# CHALLENGE ----
+
+
+
+library(tidyr)
+
+# My attempt
+
+
+dragons_long <- gather(dragons, spice, Length, c(3:6))
+
+
+dragons_long[dragons_long$spice == "paprika", ]$spice <- "turmeric"
+
+
+# I got stuck so below is the prescribed solution
+
+
+
+## Load data
+
+dragons <- read.csv('dragons.csv', header = TRUE)
+
+
+## Clean the dataset
+
+# Change paprika to turmeric
+
+dragons <- rename(dragons, turmeric = paprika)
+
+
+# Fix the calibration error for tabasco by horntail
+
+correct.values  <- dragons$tabasco[dragons$species == 'hungarian_horntail'] - 30   # create a vector of corrected values
+
+dragons[dragons$species == 'hungarian_horntail', 'tabasco'] <- correct.values      # overwrite the values in the dragons object
+
+
+
+# Reshape the data from wide to long format
+
+dragons_long2 <- gather(dragons, key = 'spice', value = 'plume', c('tabasco', 'jalapeno', 'wasabi', 'turmeric'))
+
+
+# Convert the data into meters
+
+dragons_long2 <- mutate(dragons_long2, plume.m = plume/100)    # Creating a new column turning cm into m
+
+
+# Create a subset for each species to make boxplots
+
+horntail <- filter(dragons_long2, species == 'hungarian_horntail')            # the dplyr way of filtering
+green <- filter(dragons_long2, species == 'welsh_green')
+shortsnout <- dragons_long2[dragons_long2$species == 'swedish_shortsnout', ]   # maybe you opted for a base R solution instead?
+
+
+# Make the boxplots
+
+par(mfrow=c(1, 3))      # you need not have used this, but it splits your plotting device into 3 columns where the plots will appear, so all the plots will be side by side.
+
+boxplot(plume.m ~ spice, data = horntail,
+        xlab = 'Spice', ylab = 'Length of fire plume (m)',
+        main = 'Hungarian Horntail')
+
+
+boxplot(plume.m ~ spice, data = green,
+        xlab = 'Spice', ylab = 'Length of fire plume (m)',
+        main = 'Welsh Green')
+
+
+boxplot(plume.m ~ spice, data = shortsnout,
+        xlab = 'Spice', ylab = 'Length of fire plume (m)',
+        main = 'Swedish Shortsnout')
+
+
+
+
+
+
+
+
+
+
+
+
